@@ -5,8 +5,9 @@ import json
 from models import Person, Video, VideoAppearance
 
 FACES_FOLDER = os.path.join('instance', 'faces')
-FPS_SAMPLE = 5
+FPS_SAMPLE = 4
 SMOOTHING_THRESHOLD = 3.0
+MAX_RESOLUTION = 800
 
 def load_known_faces():
     known_encodings = []
@@ -69,11 +70,14 @@ def analyze_video_faces(video_path):
     
     print(f"Analizando cada {frame_interval} frames ({FPS_SAMPLE} FPS)")
     print(f"Frames a procesar: {frames_to_process}")
+    print(f"Resolución máxima de análisis: {MAX_RESOLUTION}px")
     print("="*60 + "\n")
     
     detections = {}
     frames_processed = 0
     faces_detected = 0
+    last_detection = {}
+    skip_until_frame = {}
     
     frame_number = 0
     while True:
@@ -85,12 +89,34 @@ def analyze_video_faces(video_path):
             frames_processed += 1
             timestamp = frame_number / fps
             
+            skip_analysis = False
+            for person_id in skip_until_frame:
+                if frame_number < skip_until_frame[person_id]:
+                    skip_analysis = True
+                    break
+            
+            if skip_analysis:
+                frame_number += 1
+                if frames_processed % 30 == 0:
+                    progress = (frames_processed / frames_to_process) * 100 if frames_to_process > 0 else 0
+                    print(f"[{progress:5.1f}%] Frame {frame_number:6d}/{frame_count} | Tiempo: {timestamp:6.2f}s | ⏭️  Saltando frames (optimización)")
+                continue
+            
+            height, width = frame.shape[:2]
+            if width > MAX_RESOLUTION:
+                scale = MAX_RESOLUTION / width
+                new_width = MAX_RESOLUTION
+                new_height = int(height * scale)
+                small_frame = cv2.resize(frame, (new_width, new_height))
+            else:
+                small_frame = frame
+            
             progress = (frames_processed / frames_to_process) * 100 if frames_to_process > 0 else 0
             print(f"[{progress:5.1f}%] Frame {frame_number:6d}/{frame_count} | Tiempo: {timestamp:6.2f}s", end="")
             
-            rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+            rgb_frame = cv2.cvtColor(small_frame, cv2.COLOR_BGR2RGB)
             
-            face_locations = face_recognition.face_locations(rgb_frame)
+            face_locations = face_recognition.face_locations(rgb_frame, model='hog', number_of_times_to_upsample=1)
             face_encodings = face_recognition.face_encodings(rgb_frame, face_locations)
             
             if face_encodings:
@@ -111,6 +137,10 @@ def analyze_video_faces(video_path):
                     
                     detections[person_id].append(timestamp)
                     detected_names.append(person_name)
+                    last_detection[person_id] = frame_number
+                    
+                    skip_frames = int(fps * 0.2)
+                    skip_until_frame[person_id] = frame_number + skip_frames
             
             if detected_names:
                 print(f" | Reconocidos: {', '.join(set(detected_names))}")
