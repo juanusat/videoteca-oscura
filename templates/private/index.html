@@ -1,0 +1,26 @@
+{% extends "public/base.html" %}
+
+{% block title %}Inicio - Videoteca Oscura{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div class="text-center">
+        <h2 class="text-4xl font-bold mb-4">Bienvenido a Videoteca Oscura</h2>
+        <p class="text-gray-400 mb-8">Sistema de reconocimiento facial en videos</p>
+        
+        <div class="grid md:grid-cols-2 gap-8 mt-12">
+            <a href="/faces" class="bg-gray-800 p-8 rounded-lg border border-gray-700 hover:border-blue-500 transition">
+                <div class="text-5xl mb-4">👤</div>
+                <h3 class="text-2xl font-bold mb-2">Gestión de Rostros</h3>
+                <p class="text-gray-400">Administra la biblioteca de rostros conocidos para el reconocimiento</p>
+            </a>
+            
+            <a href="/videos" class="bg-gray-800 p-8 rounded-lg border border-gray-700 hover:border-blue-500 transition">
+                <div class="text-5xl mb-4">🎬</div>
+                <h3 class="text-2xl font-bold mb-2">Análisis de Videos</h3>
+                <p class="text-gray-400">Sube y analiza videos para detectar rostros conocidos</p>
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
