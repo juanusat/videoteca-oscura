@@ -57,6 +57,7 @@ function renderVideos() {
                     </div>
                     <div class="flex gap-2">
                         ${!video.processed ? `<button onclick="processVideo(${video.id})" class="px-4 py-2 bg-green-600 hover:bg-green-700 rounded transition">Procesar</button>` : '<span class="px-4 py-2 bg-gray-600 rounded">Procesado</span>'}
+                        ${video.processed ? `<button onclick="downloadVideoReport(${video.id})" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded transition">📄 Reporte</button>` : ''}
                         <button onclick="deleteVideo(${video.id})" class="px-4 py-2 bg-red-600 hover:bg-red-700 rounded transition">Eliminar</button>
                     </div>
                 </div>
@@ -65,6 +66,44 @@ function renderVideos() {
         `;
     }).join('');
 }
+
+async function downloadVideoReport(videoId) {
+    try {
+        window.location.href = `/api/reports/video/${videoId}`;
+        showMessage('Descargando reporte del video...', 'success');
+    } catch (error) {
+        showMessage('Error al descargar reporte', 'error');
+    }
+}
+
+let searchTimeout;
+document.getElementById('searchPersonInput').addEventListener('input', (e) => {
+    clearTimeout(searchTimeout);
+    const query = e.target.value.trim().toLowerCase();
+    
+    if (query.length < 2) {
+        renderVideos();
+        return;
+    }
+    
+    searchTimeout = setTimeout(async () => {
+        const container = document.getElementById('videosList');
+        const filteredVideos = videos.filter(video => {
+            if (!video.processed || !video.analysis) return false;
+            return Object.keys(video.analysis).some(name => 
+                name.toLowerCase().includes(query)
+            );
+        });
+        
+        if (filteredVideos.length === 0) {
+            container.innerHTML = '<p class="text-gray-400 text-center py-8">No se encontraron videos con esa persona</p>';
+        } else {
+            videos = filteredVideos;
+            renderVideos();
+            loadVideos();
+        }
+    }, 300);
+});
 
 document.getElementById('uploadVideoForm').addEventListener('submit', async (e) => {
     e.preventDefault();

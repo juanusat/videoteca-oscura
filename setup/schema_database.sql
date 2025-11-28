@@ -27,5 +27,25 @@ CREATE TABLE IF NOT EXISTS video_appearances (
     FOREIGN KEY (person_id) REFERENCES persons(id) ON DELETE CASCADE
 );
 
+CREATE TABLE IF NOT EXISTS video_tags (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    video_id INTEGER NOT NULL,
+    tag TEXT NOT NULL,
+    FOREIGN KEY (video_id) REFERENCES videos(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS notifications (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    type TEXT NOT NULL,
+    title TEXT NOT NULL,
+    message TEXT NOT NULL,
+    icon TEXT,
+    read BOOLEAN DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 CREATE INDEX IF NOT EXISTS idx_video_appearances_video ON video_appearances(video_id);
 CREATE INDEX IF NOT EXISTS idx_video_appearances_person ON video_appearances(person_id);
+CREATE INDEX IF NOT EXISTS idx_video_tags_video ON video_tags(video_id);
+CREATE INDEX IF NOT EXISTS idx_notifications_read ON notifications(read);
+CREATE INDEX IF NOT EXISTS idx_notifications_created ON notifications(created_at);

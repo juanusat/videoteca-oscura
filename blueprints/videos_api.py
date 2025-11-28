@@ -1,6 +1,6 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, send_file
 from werkzeug.utils import secure_filename
-from models import Video, VideoAppearance
+from models import Video, VideoAppearance, Notification
 from services.video_processor import process_video
 from utils import get_video_duration
 import os
@@ -60,6 +60,7 @@ def upload_video():
     duration = get_video_duration(filepath)
     
     video_id = Video.create(filename, original_filename, filepath, duration)
+    Notification.create('success', 'Video Subido', f'Se subió el video {original_filename}', '🎬')
     
     return jsonify({
         'id': video_id,
@@ -84,12 +85,17 @@ def process_video_route(video_id):
     try:
         result = process_video(video_id, video['file_path'])
         print(f"✓ Procesamiento completado exitosamente\n")
+        
+        person_count = len(result)
+        Notification.create('success', 'Video Procesado', f'Se procesó {video["original_filename"]} - {person_count} persona(s) detectada(s)', '✅')
+        
         return jsonify({
             'message': 'Video procesado correctamente',
             'analysis': result
         })
     except Exception as e:
         print(f"✗ ERROR durante el procesamiento: {str(e)}\n")
+        Notification.create('error', 'Error de Procesamiento', f'Falló el procesamiento de {video["original_filename"]}', '❌')
         return jsonify({'error': f'Error al procesar video: {str(e)}'}), 500
 
 @videos_bp.route('/<int:video_id>', methods=['DELETE'])
@@ -98,12 +104,14 @@ def delete_video(video_id):
     if not video:
         return jsonify({'error': 'Video no encontrado'}), 404
     
+    video_name = video['original_filename']
     video_path = video['file_path']
     if os.path.exists(video_path):
         os.remove(video_path)
     
     VideoAppearance.delete_by_video(video_id)
     Video.delete(video_id)
+    Notification.create('warning', 'Video Eliminado', f'Se eliminó {video_name}', '🗑️')
     
     return jsonify({'message': 'Video eliminado correctamente'})
 

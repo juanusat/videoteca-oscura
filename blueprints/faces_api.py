@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 from werkzeug.utils import secure_filename
-from models import Person
+from models import Person, Notification
 import os
 import uuid
 
@@ -50,6 +50,7 @@ def upload_face():
     
     try:
         person_id = Person.create(name, filename)
+        Notification.create('success', 'Nuevo Rostro', f'Se agregó el rostro de {name}', '👤')
         return jsonify({
             'id': person_id,
             'name': name,
@@ -74,7 +75,9 @@ def update_face(person_id):
         return jsonify({'error': 'Persona no encontrada'}), 404
     
     try:
+        old_name = person['name']
         Person.update_name(person_id, new_name)
+        Notification.create('info', 'Rostro Actualizado', f'Se renombró de {old_name} a {new_name}', '✏️')
         return jsonify({'message': 'Nombre actualizado correctamente'})
     except Exception as e:
         return jsonify({'error': str(e)}), 400
@@ -85,9 +88,11 @@ def delete_face(person_id):
     if not person:
         return jsonify({'error': 'Persona no encontrada'}), 404
     
+    person_name = person['name']
     photo_path = os.path.join(FACES_FOLDER, person['photo_path'])
     if os.path.exists(photo_path):
         os.remove(photo_path)
     
     Person.delete(person_id)
+    Notification.create('warning', 'Rostro Eliminado', f'Se eliminó el rostro de {person_name}', '🗑️')
     return jsonify({'message': 'Rostro eliminado correctamente'})

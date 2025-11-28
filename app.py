@@ -18,9 +18,14 @@ def serve_face_image(filename):
 
 from blueprints.faces_api import faces_bp
 from blueprints.videos_api import videos_bp
+from blueprints.notifications_api import notifications_bp
+from blueprints.search_api import search_bp, reports_bp
 
 app.register_blueprint(faces_bp, url_prefix='/api/faces')
 app.register_blueprint(videos_bp, url_prefix='/api/videos')
+app.register_blueprint(notifications_bp, url_prefix='/api/notifications')
+app.register_blueprint(search_bp, url_prefix='/api/search')
+app.register_blueprint(reports_bp, url_prefix='/api/reports')
 
 @app.route('/')
 def index():

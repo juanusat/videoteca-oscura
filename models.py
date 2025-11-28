@@ -74,3 +74,54 @@ class VideoAppearance:
     def delete_by_video(video_id):
         query = "DELETE FROM video_appearances WHERE video_id = ?"
         execute_query(query, (video_id,), commit=True)
+
+class VideoTag:
+    @staticmethod
+    def create(video_id, tag):
+        query = "INSERT INTO video_tags (video_id, tag) VALUES (?, ?)"
+        return execute_query(query, (video_id, tag), commit=True)
+    
+    @staticmethod
+    def get_by_video(video_id):
+        query = "SELECT * FROM video_tags WHERE video_id = ?"
+        return execute_query(query, (video_id,), fetch_all=True)
+    
+    @staticmethod
+    def delete_by_video(video_id):
+        query = "DELETE FROM video_tags WHERE video_id = ?"
+        execute_query(query, (video_id,), commit=True)
+
+class Notification:
+    @staticmethod
+    def create(type, title, message, icon='ℹ️'):
+        query = "INSERT INTO notifications (type, title, message, icon) VALUES (?, ?, ?, ?)"
+        return execute_query(query, (type, title, message, icon), commit=True)
+    
+    @staticmethod
+    def get_all(unread_only=False):
+        if unread_only:
+            query = "SELECT * FROM notifications WHERE read = 0 ORDER BY created_at DESC"
+        else:
+            query = "SELECT * FROM notifications ORDER BY created_at DESC LIMIT 50"
+        return execute_query(query, fetch_all=True)
+    
+    @staticmethod
+    def mark_read(notification_id):
+        query = "UPDATE notifications SET read = 1 WHERE id = ?"
+        execute_query(query, (notification_id,), commit=True)
+    
+    @staticmethod
+    def mark_all_read():
+        query = "UPDATE notifications SET read = 1"
+        execute_query(query, commit=True)
+    
+    @staticmethod
+    def delete(notification_id):
+        query = "DELETE FROM notifications WHERE id = ?"
+        execute_query(query, (notification_id,), commit=True)
+    
+    @staticmethod
+    def get_unread_count():
+        query = "SELECT COUNT(*) as count FROM notifications WHERE read = 0"
+        result = execute_query(query, fetch_one=True)
+        return result['count'] if result else 0
