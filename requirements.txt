@@ -1,0 +1,29 @@
+# Dependencias existentes
+Flask==2.3.3
+opencv-python==4.8.1.78
+face-recognition==1.3.0
+Pillow==10.0.1
+reportlab==4.0.4
+
+# Nuevas dependencias para funcionalidades avanzadas
+# Análisis de emociones (opcional - si no está disponible, usa análisis básico)
+# tensorflow==2.13.0
+# keras==2.13.1
+
+# Para análisis más avanzado de imágenes
+numpy==1.24.3
+scikit-learn==1.3.0
+
+# Para procesamiento asíncrono mejorado (opcional)
+# celery==5.3.1
+# redis==4.6.0
+
+# Para análisis estadístico
+pandas==2.0.3
+matplotlib==3.7.2
+
+# Para manejo de fechas y tiempo
+python-dateutil==2.8.2
+
+# Para logging avanzado
+colorlog==6.7.0

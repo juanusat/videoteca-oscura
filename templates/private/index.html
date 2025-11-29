@@ -1,26 +1,219 @@
 {% extends "public/base.html" %}
 
-{% block title %}Inicio - Videoteca Oscura{% endblock %}
+{% block title %}Dashboard - Videoteca Oscura{% endblock %}
 
 {% block content %}
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-    <div class="text-center">
-        <h2 class="text-4xl font-bold mb-4">Bienvenido a Videoteca Oscura</h2>
-        <p class="text-gray-400 mb-8">Sistema de reconocimiento facial en videos</p>
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Header -->
+    <div class="text-center mb-8">
+        <h2 class="text-4xl font-bold mb-4">Dashboard - Videoteca Oscura</h2>
+        <p class="text-gray-400 mb-8">Sistema avanzado de reconocimiento facial y análisis de videos</p>
+    </div>
+
+    <!-- Estadísticas Principales -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div class="bg-gray-800 p-6 rounded-lg border border-gray-700">
+            <div class="flex items-center">
+                <div class="text-3xl mr-4">🎬</div>
+                <div>
+                    <div class="text-2xl font-bold" id="total-videos">--</div>
+                    <div class="text-gray-400">Videos Totales</div>
+                </div>
+            </div>
+        </div>
         
-        <div class="grid md:grid-cols-2 gap-8 mt-12">
-            <a href="/faces" class="bg-gray-800 p-8 rounded-lg border border-gray-700 hover:border-blue-500 transition">
-                <div class="text-5xl mb-4">👤</div>
-                <h3 class="text-2xl font-bold mb-2">Gestión de Rostros</h3>
-                <p class="text-gray-400">Administra la biblioteca de rostros conocidos para el reconocimiento</p>
-            </a>
-            
-            <a href="/videos" class="bg-gray-800 p-8 rounded-lg border border-gray-700 hover:border-blue-500 transition">
-                <div class="text-5xl mb-4">🎬</div>
-                <h3 class="text-2xl font-bold mb-2">Análisis de Videos</h3>
-                <p class="text-gray-400">Sube y analiza videos para detectar rostros conocidos</p>
-            </a>
+        <div class="bg-gray-800 p-6 rounded-lg border border-gray-700">
+            <div class="flex items-center">
+                <div class="text-3xl mr-4">👥</div>
+                <div>
+                    <div class="text-2xl font-bold" id="total-persons">--</div>
+                    <div class="text-gray-400">Personas Registradas</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-gray-800 p-6 rounded-lg border border-gray-700">
+            <div class="flex items-center">
+                <div class="text-3xl mr-4">👁️</div>
+                <div>
+                    <div class="text-2xl font-bold" id="total-appearances">--</div>
+                    <div class="text-gray-400">Apariciones Totales</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-gray-800 p-6 rounded-lg border border-gray-700">
+            <div class="flex items-center">
+                <div class="text-3xl mr-4">⏱️</div>
+                <div>
+                    <div class="text-2xl font-bold" id="processing-time">--</div>
+                    <div class="text-gray-400">Horas Procesadas</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navegación Rápida -->
+    <div class="grid md:grid-cols-3 gap-6 mb-8">
+        <a href="/faces" class="bg-gray-800 p-6 rounded-lg border border-gray-700 hover:border-blue-500 transition">
+            <div class="text-4xl mb-4">👤</div>
+            <h3 class="text-xl font-bold mb-2">Gestión de Rostros</h3>
+            <p class="text-gray-400">Administra la biblioteca de rostros conocidos</p>
+        </a>
+        
+        <a href="/videos" class="bg-gray-800 p-6 rounded-lg border border-gray-700 hover:border-blue-500 transition">
+            <div class="text-4xl mb-4">🎬</div>
+            <h3 class="text-xl font-bold mb-2">Análisis de Videos</h3>
+            <p class="text-gray-400">Sube y analiza videos con IA</p>
+        </a>
+
+        <a href="#" onclick="openSearchModal()" class="bg-gray-800 p-6 rounded-lg border border-gray-700 hover:border-green-500 transition">
+            <div class="text-4xl mb-4">🔍</div>
+            <h3 class="text-xl font-bold mb-2">Búsqueda Avanzada</h3>
+            <p class="text-gray-400">Busca con filtros y criterios múltiples</p>
+        </a>
+    </div>
+
+    <!-- Gráficos y Analytics -->
+    <div class="grid md:grid-cols-2 gap-6 mb-8">
+        <!-- Top Personas -->
+        <div class="bg-gray-800 p-6 rounded-lg border border-gray-700">
+            <h3 class="text-xl font-bold mb-4">Personas más Frecuentes</h3>
+            <div id="top-persons-chart" class="space-y-3">
+                <!-- Se llena dinámicamente -->
+            </div>
+        </div>
+
+        <!-- Actividad Reciente -->
+        <div class="bg-gray-800 p-6 rounded-lg border border-gray-700">
+            <h3 class="text-xl font-bold mb-4">Actividad Reciente</h3>
+            <div id="recent-activity" class="space-y-2 max-h-64 overflow-y-auto">
+                <!-- Se llena dinámicamente -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Estado del Sistema -->
+    <div class="bg-gray-800 p-6 rounded-lg border border-gray-700">
+        <h3 class="text-xl font-bold mb-4">Estado del Sistema</h3>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="text-center">
+                <div class="text-lg font-semibold" id="queue-status">Cola de Procesamiento</div>
+                <div class="text-gray-400" id="queue-details">--</div>
+            </div>
+            <div class="text-center">
+                <div class="text-lg font-semibold">Modelo de Emociones</div>
+                <div class="text-gray-400" id="emotion-model-status">--</div>
+            </div>
+            <div class="text-center">
+                <div class="text-lg font-semibold">Último Backup</div>
+                <div class="text-gray-400">--</div>
+            </div>
         </div>
     </div>
 </div>
+
+<!-- Modal de Búsqueda Avanzada -->
+<div id="searchModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
+    <div class="flex items-center justify-center min-h-screen p-4">
+        <div class="bg-gray-800 rounded-lg w-full max-w-2xl max-h-screen overflow-y-auto">
+            <div class="p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold">Búsqueda Avanzada</h2>
+                    <button onclick="closeSearchModal()" class="text-gray-400 hover:text-white">✕</button>
+                </div>
+
+                <form id="advanced-search-form" class="space-y-4">
+                    <!-- Búsqueda por texto -->
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Búsqueda por Texto</label>
+                        <input type="text" id="search-text" class="w-full p-3 bg-gray-700 rounded border border-gray-600" placeholder="Buscar en nombres, archivos, tags...">
+                    </div>
+
+                    <!-- Filtro de personas -->
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Personas</label>
+                        <select multiple id="search-persons" class="w-full p-3 bg-gray-700 rounded border border-gray-600">
+                            <!-- Se llena dinámicamente -->
+                        </select>
+                    </div>
+
+                    <!-- Rango de fechas -->
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Fecha Desde</label>
+                            <input type="date" id="search-date-from" class="w-full p-3 bg-gray-700 rounded border border-gray-600">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Fecha Hasta</label>
+                            <input type="date" id="search-date-to" class="w-full p-3 bg-gray-700 rounded border border-gray-600">
+                        </div>
+                    </div>
+
+                    <!-- Duración -->
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Duración Mínima (seg)</label>
+                            <input type="number" id="search-duration-min" class="w-full p-3 bg-gray-700 rounded border border-gray-600" min="0">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Duración Máxima (seg)</label>
+                            <input type="number" id="search-duration-max" class="w-full p-3 bg-gray-700 rounded border border-gray-600" min="0">
+                        </div>
+                    </div>
+
+                    <!-- Opciones adicionales -->
+                    <div class="space-y-2">
+                        <label class="flex items-center">
+                            <input type="checkbox" id="search-multiple-persons" class="mr-2">
+                            Videos con múltiples personas
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" id="search-processed-only" class="mr-2">
+                            Solo videos procesados
+                        </label>
+                    </div>
+
+                    <!-- Ordenamiento -->
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Ordenar por</label>
+                            <select id="search-sort-by" class="w-full p-3 bg-gray-700 rounded border border-gray-600">
+                                <option value="date">Fecha</option>
+                                <option value="duration">Duración</option>
+                                <option value="appearances">Apariciones</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Orden</label>
+                            <select id="search-sort-order" class="w-full p-3 bg-gray-700 rounded border border-gray-600">
+                                <option value="DESC">Descendente</option>
+                                <option value="ASC">Ascendente</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="flex space-x-4">
+                        <button type="submit" class="bg-blue-600 text-white px-6 py-3 rounded hover:bg-blue-700 flex-1">
+                            Buscar
+                        </button>
+                        <button type="button" onclick="clearSearchForm()" class="bg-gray-600 text-white px-6 py-3 rounded hover:bg-gray-700">
+                            Limpiar
+                        </button>
+                    </div>
+                </form>
+
+                <!-- Resultados de búsqueda -->
+                <div id="search-results" class="mt-6 hidden">
+                    <h3 class="text-lg font-semibold mb-4">Resultados de Búsqueda</h3>
+                    <div id="search-results-list" class="space-y-2 max-h-64 overflow-y-auto">
+                        <!-- Se llena dinámicamente -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="/static/js/dashboard.js"></script>
 {% endblock %}

@@ -13,6 +13,7 @@ CREATE TABLE IF NOT EXISTS videos (
     duration REAL,
     processed BOOLEAN DEFAULT 0,
     analysis_result TEXT,
+    emotion_analysis TEXT,
     uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     processed_at TIMESTAMP
 );

@@ -195,7 +195,7 @@ if is_face_recognition_available():
     print("✓ face_recognition detectado - usando análisis real")
     # Importar la implementación real si existe
     try:
-        from services.video_processor_real import *
+        from .video_processor_real import *
     except ImportError:
         print("⚠ Usando implementación demo hasta que se configure face_recognition")
 else:
